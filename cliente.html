@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Bootstrap CSS -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://kit.fontawesome.com/497d34adea.js" crossorigin="anonymous"></script>
+    <title>chat2.0</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@1,100&family=Raleway:wght@200&family=Tajawal&display=swap');
+    </style>
+</head>
+
+<body>
+
+
+    <div id="login" class="login">
+        <h3> Nickname:</h3>
+        <input type="text" id="username"><br/><br>
+        <input type="button" value="Ingresar" id="button-ingresar">
+    </div>
+
+    <div id="chat" class="chat">
+        <div class="chat-mensajes" id="chat-mensajes" style="text-align: center;">
+            Welcome <br>
+        </div>
+        <div class="chat-escribir" id="chat-escribir">
+            <input type="text" class="text-mensaje" id="text-mensaje">
+            <input type="button" value="Enviar" id="button-enviar" class="button-enviar" style="background: rgb(171, 235, 198 
+            ); margin: 20px;">
+        </div>
+    </div>
+    <script src="/socket.io/socket.io.js"></script>
+
+    <script>
+        var socket = io();
+        $(document).ready(function() {
+            $('#login').fadeIn(500);
+        });
+        $('#button-ingresar').click(function() {
+            var username = $('#username').val();
+            if (username == '') {
+                alert('Debes escribir un nombre');
+            } else {
+                socket.emit('crearUsuario', username);
+                $('#login').fadeOut(500, function() {
+                    $('#chat').fadeIn(500);
+                });
+            }
+        });
+        $('#text-mensaje').keypress(function(event) {
+            if (event.which == 13) {
+                $('#button-enviar').click();
+            }
+        });
+        $('#button-enviar').click(function() {
+            var mensaje = $('#text-mensaje').val();
+            if (mensaje != '') {
+                $('#text-mensaje').val('');
+
+                socket.emit('mensajeNuevo', mensaje);
+            }
+        });
+
+        socket.on('mensaje', function(data) {
+            var nuevoMensaje = '<b>' + data.usuario + '<b>: </b>' + data.mensaje;
+            $('#chat-mensajes').append(nuevoMensaje + '<br />');
+        });
+    </script>
+
+</body>
+<style>
+    .login {
+        width: 50%;
+        margin: 0 auto;
+        background-color: rgb( 93, 173, 226 );
+        padding: 25px;
+        text-align: center;
+        border: 5px solid rgb(8, 87, 107);
+        border-radius: 4px;
+        font-size: 20pt;
+        height: 100%;
+        margin-top: 100px;
+        display: none;
+        font-family: 'Raleway', sans-serif;
+    }
+    
+    input {
+        font-family: 'Raleway', sans-serif;
+        font-size: 15pt;
+        padding: 10px;
+        border-radius: 5px;
+    }
+    
+    .chat {
+        width: 1000px;
+        margin: 0 auto;
+        background-color: rgb( 93, 173, 226 );
+        padding: 25px;
+        text-align: center;
+        border: 5px solid rgb(8, 87, 107);
+        border-radius: 10px;
+        font-size: 15pt;
+        height: 50%;
+        display: none;
+    }
+    
+    .chat-mensajes {
+        width: 100%;
+        background-color: rgb(214, 234, 248 );
+        border: 5px solid rgb(8, 87, 107);
+        border-radius: 10px;
+        text-align: left;
+        height: 500px;
+        font-family: 'Raleway', sans-serif;
+        font-size: 50px;
+    }
+    
+    .chat-escribir {
+        margin-top: 40px;
+        width: 80%;
+        height: 60px;
+    }
+    
+    input[id=text-mensaje] {
+        width: 80%;
+    }
+</style>
+
+</html>
